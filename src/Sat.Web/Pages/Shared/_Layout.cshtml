@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Simulador SAT</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="marca">Simulador SAT &mdash; DTE</div>
+            <ul class="menu">
+                <li><a asp-page="/Index">Enviar mensaje</a></li>
+                <li><a asp-page="/Ayuda">Ayuda</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="contenedor">
+        @RenderBody()
+    </main>
+
+    <footer class="pie">
+        <p>IPC2 &middot; Proyecto 3 &middot; Programa 1 (Frontend) &middot; Servicio 2 (API .NET Core)</p>
+    </footer>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

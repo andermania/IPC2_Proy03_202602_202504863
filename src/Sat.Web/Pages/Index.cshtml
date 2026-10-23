@@ -1,0 +1,47 @@
+@page
+@model Sat.Web.Pages.IndexModel
+@{
+    ViewData["Title"] = "Enviar mensaje";
+}
+
+<section class="tarjeta">
+    <h1>Enviar mensaje</h1>
+    <p>
+        Seleccione el tipo de mensaje y el archivo con extensión <code>.json</code> que desea
+        enviar al Servicio 2 (API). El archivo puede contener una o varias solicitudes.
+    </p>
+
+    <form id="formEnvio" data-api="@Model.ApiBaseUrl">
+        <div class="fila">
+            <label for="tipoMensaje">Tipo de mensaje</label>
+            <select id="tipoMensaje" name="tipoMensaje">
+                <option value="rtu">Actualización del RTU (contribuyentes)</option>
+                <option value="autorizaciones">Solicitudes de autorización de facturas</option>
+            </select>
+        </div>
+
+        <div class="fila">
+            <label for="archivoJson">Archivo JSON</label>
+            <input type="file" id="archivoJson" name="archivoJson" accept=".json,application/json" />
+        </div>
+
+        <div class="acciones">
+            <button type="submit" id="btnEnviar" class="boton primario">Enviar mensaje</button>
+            <button type="button" id="btnInicializar" class="boton peligro">Inicializar sistema</button>
+        </div>
+    </form>
+
+    <div id="estado" class="estado" hidden></div>
+</section>
+
+<section class="tarjeta">
+    <h2>Resumen de la respuesta</h2>
+    <div id="resumen" class="resumen" hidden></div>
+
+    <h3>Respuesta del servicio</h3>
+    <pre id="respuesta" class="respuesta">Aún no se ha enviado ningún mensaje.</pre>
+</section>
+
+@section Scripts {
+    <script src="~/js/enviador.js" asp-append-version="true"></script>
+}

@@ -1,0 +1,13 @@
+# .NET / Visual Studio
+bin/
+obj/
+*.user
+*.suo
+.vs/
+*.trx
+
+# Archivos de datos generados por el servicio (estado en runtime)
+src/Sat.Api/App_Data/
+
+# Archivos temporales de persistencia
+*.tmp
