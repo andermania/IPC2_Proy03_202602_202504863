@@ -38,6 +38,7 @@ if (Enum.TryParse<ValidadorNIT.ModoValidacion>(modoNIT, ignoreCase: true, out va
 // Servicios de negocio.
 builder.Services.AddSingleton<ServicioRTU>();
 builder.Services.AddSingleton<ProcesadorAutorizaciones>();
+builder.Services.AddSingleton<ServicioReportes>();
 
 var app = builder.Build();
 

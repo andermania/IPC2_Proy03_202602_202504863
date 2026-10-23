@@ -38,13 +38,23 @@ dotnet run --project src/Sat.Web/Sat.Web.csproj
 
 ## Endpoints del API
 
-| Método | Ruta                        | Descripción                                            |
-|--------|-----------------------------|--------------------------------------------------------|
-| POST   | `/api/rtu`                  | Actualiza el RTU (crea, actualiza o ignora NITs)       |
-| GET    | `/api/rtu`                  | Consulta los contribuyentes registrados                |
-| POST   | `/api/autorizaciones`       | Solicita la autorización de las facturas               |
-| POST   | `/api/sistema/inicializar`  | Devuelve el sistema al estado inicial (sin datos)      |
-| GET    | `/api/sistema/salud`        | Verifica que el servicio esté operativo                |
+| Método | Ruta                              | Descripción                                            |
+|--------|-----------------------------------|--------------------------------------------------------|
+| POST   | `/api/rtu`                        | Actualiza el RTU (crea, actualiza o ignora NITs)       |
+| GET    | `/api/rtu`                        | Consulta los contribuyentes registrados                |
+| POST   | `/api/autorizaciones`             | Solicita la autorización de las facturas               |
+| POST   | `/api/sistema/inicializar`        | Devuelve el sistema al estado inicial (sin datos)      |
+| GET    | `/api/sistema/salud`              | Verifica que el servicio esté operativo                |
+| GET    | `/api/reportes/errores`           | Reporte de facturas y errores por rango de fechas      |
+| GET    | `/api/reportes/contribuyente`     | Facturas autorizadas y monto por fecha de un NIT       |
+| GET    | `/api/reportes/facturas`          | Listado de facturas emitidas o recibidas de un NIT     |
+| GET    | `/api/reportes/iva`               | IVA emitido y recibido por NIT en una fecha            |
+| GET    | `/api/reportes/rango`             | Valor autorizado por fecha (con IVA o sin IVA)         |
+| GET    | `/api/reportes/nits`              | Catálogo de contribuyentes del RTU                     |
+
+Parámetros de las consultas: `desde` y `hasta` en formato `dd/MM/yyyy` (también se acepta
+`yyyy-MM-dd`), `tipo` = `emitidas` | `recibidas` | `ambas`, `fecha` = `dd/MM/yyyy` y
+`tipoValores` = `total` | `sinIva`.
 
 ### Ejemplo con Postman o curl
 
@@ -77,4 +87,6 @@ curl -X POST http://localhost:5200/api/autorizaciones \
 - `pruebas/autorizaciones_validas.json`: facturas correctas (generan código de autorización).
 - `pruebas/autorizaciones_casos_error.json`: emisor/receptor inexistente, IVA y TOTAL mal
   calculados, referencia duplicada, fecha inválida y NIT inválido.
+- `pruebas/reportes_escenario.json`: escenario de 10 facturas (2 fechas, todas las
+  categorías de error) para verificar los reportes de `/api/reportes/*`.
 - `pruebas/*_muestra_enunciado.json`: mensajes tal como aparecen en el enunciado.
