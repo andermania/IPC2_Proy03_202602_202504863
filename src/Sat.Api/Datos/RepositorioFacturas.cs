@@ -22,7 +22,9 @@ public class RepositorioFacturas
         Cargar();
     }
 
-    /// <summary>Indica si la referencia ya fue utilizada por una factura anterior.</summary>
+    /// <summary>
+    /// Indica si la referencia ya fue utilizada por una factura anterior.
+    /// </summary>
     public bool ExisteReferencia(string referencia)
     {
         lock (_candado)
@@ -31,12 +33,22 @@ public class RepositorioFacturas
         }
     }
 
-    /// <summary>Reserva una referencia para que no pueda volver a utilizarse.</summary>
-    public void ReservarReferencia(string referencia)
+    /// <summary>
+    /// Reserva la referencia de forma atómica: devuelve true (y la reserva) únicamente
+    /// si todavía no había sido utilizada. Así dos solicitudes concurrentes con la misma
+    /// REFERENCIA no pueden aprobarse ambas.
+    /// </summary>
+    public bool ReservarSiNoExiste(string referencia)
     {
         lock (_candado)
         {
+            if (_referencias.Contiene(referencia))
+            {
+                return false;
+            }
+
             _referencias.Insertar(referencia, true);
+            return true;
         }
     }
 

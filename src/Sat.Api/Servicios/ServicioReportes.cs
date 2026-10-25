@@ -25,6 +25,9 @@ public class ServicioReportes
         _contribuyentes = contribuyentes;
     }
 
+    /// <summary>Clave de agrupación de las facturas cuya fecha no pudo extraerse.</summary>
+    public const string FechaInvalidaAgrupacion = "sin fecha";
+
     /// <summary>Reporte de facturas recibidas y errores para un rango de fechas.</summary>
     public ReporteErrores ReporteErrores(DateTime desde, DateTime hasta)
     {
@@ -35,7 +38,7 @@ public class ServicioReportes
         };
 
         var resumenes = new TablaHash<string, ResumenDiarioErrores>();
-        var ordenFechas = new List<DateTime>();
+        var ordenFechas = new List<DateTime?>();
         var emisoresPorFecha = new Dictionary<string, HashSet<string>>();
         var receptoresPorFecha = new Dictionary<string, HashSet<string>>();
         var todosEmisores = new HashSet<string>();
@@ -44,24 +47,30 @@ public class ServicioReportes
         foreach (var registro in _facturas.ObtenerTodos())
         {
             var fecha = FechaEmision(registro);
+            string clave;
+
             if (fecha is null)
             {
+                // La factura sí fue recibida por el servicio: se agrupa bajo "sin fecha"
+                // para que no se pierda del total ni de su error FECHA inválida.
                 reporte.FacturasSinFecha++;
-                continue;
+                clave = FechaInvalidaAgrupacion;
             }
-
-            if (fecha.Value < desde || fecha.Value > hasta)
+            else
             {
-                continue;
-            }
+                if (fecha.Value < desde || fecha.Value > hasta)
+                {
+                    continue;
+                }
 
-            var clave = Fechas.Formatear(fecha.Value);
+                clave = Fechas.Formatear(fecha.Value);
+            }
 
             if (!resumenes.IntentarObtener(clave, out var resumen))
             {
                 resumen = new ResumenDiarioErrores { Fecha = clave };
                 resumenes.Insertar(clave, resumen);
-                ordenFechas.Add(fecha.Value);
+                ordenFechas.Add(fecha);
             }
 
             resumen.CantidadFacturasRecibidas++;
@@ -91,9 +100,11 @@ public class ServicioReportes
             }
         }
 
-        foreach (var fecha in ordenFechas.OrderBy(f => f))
+        // Las fechas ordenadas se listan de menor a mayor; las facturas sin fecha
+        // válida se presentan al final del reporte.
+        foreach (var fecha in ordenFechas.OrderBy(f => f.HasValue ? 0 : 1).ThenBy(f => f ?? DateTime.MinValue))
         {
-            var clave = Fechas.Formatear(fecha);
+            var clave = fecha is null ? FechaInvalidaAgrupacion : Fechas.Formatear(fecha.Value);
             if (!resumenes.IntentarObtener(clave, out var resumen))
             {
                 continue;
@@ -219,22 +230,28 @@ public class ServicioReportes
 
             // Emisor: IVA emitido.
             var nitEmisor = ValidadorNIT.Normalizar(registro.NitEmisor);
-            var emisor = ObtenerMovimiento(porNit, ordenNits, nitEmisor);
-            emisor.FacturasEmitidas++;
-            emisor.IvaEmitido += registro.Iva;
-            if (registro.Aprobada)
+            if (nitEmisor.Length > 0)
             {
-                emisor.IvaEmitidoAutorizado += registro.Iva;
+                var emisor = ObtenerMovimiento(porNit, ordenNits, nitEmisor);
+                emisor.FacturasEmitidas++;
+                emisor.IvaEmitido += registro.Iva;
+                if (registro.Aprobada)
+                {
+                    emisor.IvaEmitidoAutorizado += registro.Iva;
+                }
             }
 
             // Receptor: IVA recibido.
             var nitReceptor = ValidadorNIT.Normalizar(registro.NitReceptor);
-            var receptor = ObtenerMovimiento(porNit, ordenNits, nitReceptor);
-            receptor.FacturasRecibidas++;
-            receptor.IvaRecibido += registro.Iva;
-            if (registro.Aprobada)
+            if (nitReceptor.Length > 0)
             {
-                receptor.IvaRecibidoAutorizado += registro.Iva;
+                var receptor = ObtenerMovimiento(porNit, ordenNits, nitReceptor);
+                receptor.FacturasRecibidas++;
+                receptor.IvaRecibido += registro.Iva;
+                if (registro.Aprobada)
+                {
+                    receptor.IvaRecibidoAutorizado += registro.Iva;
+                }
             }
         }
 
@@ -349,9 +366,11 @@ public class ServicioReportes
 
     private static void AcumularFactura(ResumenContribuyenteFecha resumen, RegistroFactura registro)
     {
+        // Todas las facturas que cumplen el filtro (autorizadas o rechazadas).
         resumen.FacturasRecibidas++;
         resumen.MontoRecibido += registro.Total;
 
+        // Solo las facturas autorizadas generan factura válida y monto facturado.
         if (registro.Aprobada)
         {
             resumen.FacturasAutorizadas++;

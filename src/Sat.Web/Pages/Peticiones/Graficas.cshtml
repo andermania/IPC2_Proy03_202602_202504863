@@ -1,0 +1,82 @@
+@page
+@model Sat.Web.Pages.GraficasModel
+@{
+    ViewData["Title"] = "Gráficas";
+}
+
+<section class="tarjeta">
+    <h1>Gráficas</h1>
+    <p>
+        Gráfica del <strong>resumen de IVA por fecha y NIT</strong> y gráfica del
+        <strong>resumen por rango de fechas</strong>. Ajuste los parámetros y pulse
+        «Generar gráficas».
+    </p>
+
+    <form method="get" class="formulario">
+        <div class="rejilla">
+            <div class="fila">
+                <label for="fecha">Fecha del resumen de IVA</label>
+                <input type="date" id="fecha" name="fecha" value="@Model.Fecha" />
+            </div>
+
+            <div class="fila">
+                <label for="desde">Rango desde</label>
+                <input type="date" id="desde" name="desde" value="@Model.Desde" />
+            </div>
+
+            <div class="fila">
+                <label for="hasta">Rango hasta</label>
+                <input type="date" id="hasta" name="hasta" value="@Model.Hasta" />
+            </div>
+
+            <div class="fila">
+                <label>Tipo de valores del rango</label>
+                <div class="radio">
+                    @if (Model.ConIva)
+                    {
+                        <label><input type="radio" name="tipoValores" value="total" checked /> Totales (con IVA)</label>
+                        <label><input type="radio" name="tipoValores" value="sinIva" /> Sin IVA</label>
+                    }
+                    else
+                    {
+                        <label><input type="radio" name="tipoValores" value="total" /> Totales (con IVA)</label>
+                        <label><input type="radio" name="tipoValores" value="sinIva" checked /> Sin IVA</label>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="acciones">
+            <button type="submit" class="boton primario">Generar gráficas</button>
+        </div>
+    </form>
+</section>
+
+@if (Model.Error is not null)
+{
+    <section class="tarjeta">
+        <div class="estado error">@Model.Error</div>
+    </section>
+}
+else if (Model.GraficaIva is not null || Model.GraficaRango is not null)
+{
+    if (Model.GraficaIva is not null)
+    {
+        <section class="tarjeta">
+            <h2>Gráfica 1 - Resumen de IVA por fecha y NIT</h2>
+            @if (Model.NitsOmitidos > 0)
+            {
+                <p class="nota">Se muestran los 12 NIT con mayor movimiento; se omitieron @Model.NitsOmitidos NIT con menor IVA.</p>
+            }
+            <div class="grafica">@Html.Raw(Model.GraficaIva)</div>
+        </section>
+    }
+
+    if (Model.GraficaRango is not null)
+    {
+        <section class="tarjeta">
+            <h2>Gráfica 2 - Resumen por rango de fechas</h2>
+            <div class="grafica">@Html.Raw(Model.GraficaRango)</div>
+        </section>
+    }
+}

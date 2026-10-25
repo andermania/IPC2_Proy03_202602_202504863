@@ -24,7 +24,7 @@ public class RtuController : ControllerBase
     [HttpPost]
     public ActionResult<ResultadoRTU> Actualizar([FromBody] JsonElement cuerpo)
     {
-        if (!Mensajes.Deserializar<Contribuyente>(cuerpo, out var contribuyentes))
+        if (!Mensajes.Deserializar<Contribuyente>(cuerpo, Mensajes.PropiedadesRTU, out var contribuyentes))
         {
             return BadRequest(new
             {

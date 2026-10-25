@@ -10,6 +10,11 @@ public class ResultadoAutorizaciones
 }
 
 /// <summary>Detalle del resultado de las autorizaciones.</summary>
+/// <remarks>
+/// La estructura de este objeto es obligatoria y no puede modificarse: contiene
+/// exactamente las llaves descritas en el enunciado del proyecto. El detalle de los
+/// errores de cada factura se expone en el reporte de errores (GET /api/reportes/errores).
+/// </remarks>
 public class ResultadoAutorizacionesDetalle
 {
     [JsonPropertyName("cantidadAutorizacionesAprobadas")]
@@ -20,32 +25,6 @@ public class ResultadoAutorizacionesDetalle
 
     [JsonPropertyName("cantidadAutorizacionesRechazadasPorNitReceptorInexistente")]
     public int CantidadRechazadasPorNitReceptorInexistente { get; set; }
-
-    // Campos adicionales de rechazo (manteniendo la estructura base del enunciado).
-
-    [JsonPropertyName("cantidadAutorizacionesRechazadasPorNitEmisorInvalido")]
-    public int CantidadRechazadasPorNitEmisorInvalido { get; set; }
-
-    [JsonPropertyName("cantidadAutorizacionesRechazadasPorNitReceptorInvalido")]
-    public int CantidadRechazadasPorNitReceptorInvalido { get; set; }
-
-    [JsonPropertyName("cantidadAutorizacionesRechazadasPorIvaIncorrecto")]
-    public int CantidadRechazadasPorIvaIncorrecto { get; set; }
-
-    [JsonPropertyName("cantidadAutorizacionesRechazadasPorTotalIncorrecto")]
-    public int CantidadRechazadasPorTotalIncorrecto { get; set; }
-
-    [JsonPropertyName("cantidadAutorizacionesRechazadasPorReferenciaDuplicada")]
-    public int CantidadRechazadasPorReferenciaDuplicada { get; set; }
-
-    [JsonPropertyName("cantidadAutorizacionesRechazadasPorReferenciaInvalida")]
-    public int CantidadRechazadasPorReferenciaInvalida { get; set; }
-
-    [JsonPropertyName("cantidadAutorizacionesRechazadasPorFechaInvalida")]
-    public int CantidadRechazadasPorFechaInvalida { get; set; }
-
-    [JsonPropertyName("cantidadAutorizacionesRechazadasPorValorInvalido")]
-    public int CantidadRechazadasPorValorInvalido { get; set; }
 
     [JsonPropertyName("detalleAprobaciones")]
     public List<DetalleAprobacion> DetalleAprobaciones { get; set; } = new();

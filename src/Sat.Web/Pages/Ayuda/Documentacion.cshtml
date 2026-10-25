@@ -1,0 +1,141 @@
+@page
+@model Sat.Web.Pages.DocumentacionModel
+@{
+    ViewData["Title"] = "Documentación del programa";
+}
+
+<section class="tarjeta">
+    <h1>Documentación del programa</h1>
+
+    <p>
+        La solución está compuesta por dos programas:
+    </p>
+    <ul>
+        <li>
+            <strong>Programa 1 (Frontend):</strong> aplicación web en <strong>Razor Pages</strong>
+            que permite enviar los mensajes JSON al servicio, consultar los resultados,
+            visualizar gráficas, exportar reportes a PDF y reiniciar el sistema.
+        </li>
+        <li>
+            <strong>Servicio 2 (Backend):</strong> API HTTP en <strong>.NET Core</strong> que
+            valida las solicitudes, autoriza los DTE y almacena la información de forma
+            persistente en archivos JSON.
+        </li>
+    </ul>
+
+    <h2>Mensajes de solicitud</h2>
+
+    <p><strong>Actualización del RTU</strong> (<code>POST /api/rtu</code>):</p>
+    <pre class="codigo">[
+{"NIT": "7378106","nombre": "Empresa ABC, S.A."},
+{"NIT": "8338817","nombre": "Comercial XYZ, S.A."}
+]</pre>
+
+    <p><strong>Autorizaciones de facturas</strong> (<code>POST /api/autorizaciones</code>):</p>
+    <pre class="codigo">[
+{"TIEMPO": "Guatemala, 15/01/2025 15:25 hrs.",
+ "REFERENCIA": "A1990",
+ "NIT_EMISOR": "7378106",
+ "NIT_RECEPTOR": "8338817",
+ "VALOR": 100.00,
+ "IVA": 12.00,
+ "TOTAL": 112.00}
+]</pre>
+
+    <h2>Mensajes de respuesta</h2>
+    <pre class="codigo">{"CONTRIBUYENTES_NUEVOS": 2,
+"CONTRIBUYENTES_ACTUALIZADOS": 0,
+"NITS_INVALIDOS": 0}</pre>
+
+    <pre class="codigo">{"resultadoAutorizaciones": {
+ "cantidadAutorizacionesAprobadas": 150,
+ "cantidadAutorizacionesRechazadasPorNitEmisorInexistente": 12,
+ "cantidadAutorizacionesRechazadasPorNitReceptorInexistente": 8,
+ "detalleAprobaciones": [
+ {"referencia": "A1990","codigoAprobacion": 2026092100000001}
+ ]
+ }}</pre>
+
+    <h2>Operaciones del servicio</h2>
+    <table class="tabla">
+        <thead>
+            <tr><th>Método</th><th>Ruta</th><th>Descripción</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>POST</td><td><code>/api/rtu</code></td><td>Actualiza el RTU (crea, actualiza o descarta NITs).</td></tr>
+            <tr><td>GET</td><td><code>/api/rtu</code></td><td>Consulta los contribuyentes registrados.</td></tr>
+            <tr><td>POST</td><td><code>/api/autorizaciones</code></td><td>Solicita la autorización de las facturas.</td></tr>
+            <tr><td>POST</td><td><code>/api/sistema/inicializar</code></td><td>Devuelve el sistema al estado inicial (sin datos).</td></tr>
+            <tr><td>GET</td><td><code>/api/sistema/salud</code></td><td>Verifica que el servicio esté operativo.</td></tr>
+            <tr><td>GET</td><td><code>/api/reportes/errores</code></td><td>Reporte de facturas y errores por rango de fechas.</td></tr>
+            <tr><td>GET</td><td><code>/api/reportes/contribuyente</code></td><td>Facturas autorizadas y monto por fecha de un NIT.</td></tr>
+            <tr><td>GET</td><td><code>/api/reportes/facturas</code></td><td>Listado de facturas emitidas o recibidas de un NIT.</td></tr>
+            <tr><td>GET</td><td><code>/api/reportes/iva</code></td><td>IVA emitido y recibido por NIT en una fecha.</td></tr>
+            <tr><td>GET</td><td><code>/api/reportes/rango</code></td><td>Valor autorizado por fecha (con IVA o sin IVA).</td></tr>
+            <tr><td>GET</td><td><code>/api/reportes/nits</code></td><td>Catálogo de contribuyentes del RTU.</td></tr>
+        </tbody>
+    </table>
+
+    <p>
+        Parámetros: <code>desde</code>, <code>hasta</code> y <code>fecha</code> en formato
+        <code>dd/MM/yyyy</code> (también se acepta <code>yyyy-MM-dd</code>);
+        <code>tipo</code> = <code>emitidas</code> | <code>recibidas</code> | <code>ambas</code>;
+        <code>tipoValores</code> = <code>total</code> | <code>sinIva</code>.
+    </p>
+
+    <h2>Peticiones del Programa 1</h2>
+    <ul>
+        <li>
+            <strong>Consultar contribuyente:</strong> por cada fecha indica la cantidad de
+            facturas autorizadas (emitidas o recibidas) y el monto facturado, más el total
+            de todo el rango.
+        </li>
+        <li>
+            <strong>Resumen de IVA por fecha y NIT:</strong> por cada NIT muestra el IVA
+            emitido y el IVA recibido en la fecha seleccionada.
+        </li>
+        <li>
+            <strong>Resumen por rango de fechas:</strong> valor autorizado por fecha, con
+            IVA (totales) o sin IVA.
+        </li>
+        <li>
+            <strong>Reporte de facturas y errores:</strong> facturas recibidas, errores por
+            categoría, facturas sin errores, emisores y receptores distintos.
+        </li>
+        <li><strong>Gráficas:</strong> gráficas de barras de los dos resúmenes anteriores.</li>
+        <li><strong>Reporte en PDF:</strong> documento con todos los reportes anteriores.</li>
+    </ul>
+
+    <h2>Número de autorización</h2>
+    <p>
+        El código de autorización tiene la estructura <code>yyyymmdd########</code>, donde:
+    </p>
+    <ul>
+        <li><code>yyyy</code>, <code>mm</code> y <code>dd</code> corresponden a la fecha en
+            que se <strong>solicita</strong> la autorización (reloj del servidor).</li>
+        <li><code>########</code> es el correlativo, iniciado en 1 cada día
+            (<code>00000001</code>), con los ceros necesarios para completar 8 posiciones y
+            que no se vuelve a repetir en ese día.</li>
+    </ul>
+
+    <h2>Reglas de negocio</h2>
+    <ul>
+        <li><strong>NIT:</strong> 1 a 20 dígitos más el dígito verificador calculado con el
+            algoritmo módulo 11 del enunciado (10 = <code>K</code>). Como las NIT de ejemplo
+            del enunciado no cumplen ese algoritmo, el servicio acepta también el algoritmo
+            oficial de la SAT; el modo se configura en <code>appsettings.json</code>
+            (<code>ValidacionNIT:Modo</code>: <code>Enunciado</code>, <code>SAT</code> o
+            <code>Ambos</code>).</li>
+        <li><strong>FECHA:</strong> se extrae con expresiones regulares de textos como
+            <code>Guatemala, 15/01/2025 15:25 hrs.</code>; el nombre del lugar u otra
+            información se descarta y no se considera error.</li>
+        <li><strong>IVA:</strong> <code>REDONDEAR(VALOR * 0.12, 2)</code>.</li>
+        <li><strong>TOTAL:</strong> <code>VALOR + IVA</code>.</li>
+        <li><strong>REFERENCIA:</strong> única en todo el sistema (la primera gana) y de
+            máximo 40 posiciones.</li>
+        <li><strong>RTU:</strong> un NIT inválido no tiene ningún efecto; un NIT válido crea
+            o actualiza al contribuyente.</li>
+    </ul>
+
+    <p><a class="boton primario" asp-page="/Ayuda">Volver a Ayuda</a></p>
+</section>

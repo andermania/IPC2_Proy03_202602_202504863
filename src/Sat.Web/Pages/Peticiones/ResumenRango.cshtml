@@ -1,0 +1,104 @@
+@page
+@model Sat.Web.Pages.ResumenRangoModel
+@{
+    ViewData["Title"] = "Resumen por rango de fechas";
+}
+
+<section class="tarjeta">
+    <h1>Resumen por rango de fechas</h1>
+    <p>
+        Seleccione el rango de fechas y si desea ver los <strong>valores totales</strong>
+        (con IVA) o los <strong>valores sin IVA</strong>. El reporte muestra por cada fecha
+        el valor autorizado y el total del rango.
+    </p>
+
+    <form method="get" class="formulario">
+        <div class="rejilla">
+            <div class="fila">
+                <label for="desde">Desde</label>
+                <input type="date" id="desde" name="desde" value="@Model.Desde" />
+            </div>
+
+            <div class="fila">
+                <label for="hasta">Hasta</label>
+                <input type="date" id="hasta" name="hasta" value="@Model.Hasta" />
+            </div>
+
+            <div class="fila">
+                <label>Tipo de valores</label>
+                <div class="radio">
+                    @if (Model.ConIva)
+                    {
+                        <label><input type="radio" name="tipoValores" value="total" checked /> Valores totales (con IVA)</label>
+                        <label><input type="radio" name="tipoValores" value="sinIva" /> Valores sin IVA</label>
+                    }
+                    else
+                    {
+                        <label><input type="radio" name="tipoValores" value="total" /> Valores totales (con IVA)</label>
+                        <label><input type="radio" name="tipoValores" value="sinIva" checked /> Valores sin IVA</label>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="acciones">
+            <button type="submit" class="boton primario">Consultar</button>
+        </div>
+    </form>
+</section>
+
+@if (Model.Error is not null)
+{
+    <section class="tarjeta">
+        <div class="estado error">@Model.Error</div>
+    </section>
+}
+else if (Model.Resultado is not null)
+{
+    var resultado = Model.Resultado;
+    var etiquetaValor = resultado.TipoValores == "sinIva" ? "Valor sin IVA" : "Valor total (con IVA)";
+
+    <section class="tarjeta">
+        <h2>Valores autorizados por fecha</h2>
+
+        @if (resultado.PorFecha.Count == 0)
+        {
+            <p class="vacio">No existen facturas autorizadas en el rango seleccionado.</p>
+        }
+        else
+        {
+            <div class="resumen">
+                <div class="dato"><b>@Formato.Entero(resultado.PorFecha.Count)</b>Fechas con facturas autorizadas</div>
+                <div class="dato"><b>@Formato.Moneda(resultado.TotalRango)</b>Total del rango</div>
+                <div class="dato"><b>@(resultado.TipoValores == "sinIva" ? "Sin IVA" : "Con IVA")</b>Tipo de valores</div>
+            </div>
+
+            <table class="tabla datos">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th class="numerico">Facturas autorizadas</th>
+                        <th class="numerico">@etiquetaValor</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var dia in resultado.PorFecha)
+                    {
+                        <tr>
+                            <td>@dia.Fecha</td>
+                            <td class="numerico">@Formato.Entero(dia.FacturasAutorizadas)</td>
+                            <td class="numerico">@Formato.Moneda(dia.ValorAutorizado)</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr class="total">
+                        <td>Total del rango (@resultado.Desde a @resultado.Hasta)</td>
+                        <td class="numerico">&nbsp;</td>
+                        <td class="numerico">@Formato.Moneda(resultado.TotalRango)</td>
+                    </tr>
+                </tfoot>
+            </table>
+        }
+    </section>
+}

@@ -1,0 +1,105 @@
+@page
+@model Sat.Web.Pages.ReporteErroresModel
+@{
+    ViewData["Title"] = "Reporte de facturas y errores";
+}
+
+<section class="tarjeta">
+    <h1>Reporte de facturas y errores</h1>
+    <p>
+        Para el rango de fechas seleccionado, el reporte presenta por cada fecha la
+        cantidad total de facturas recibidas, el listado de errores, las facturas sin
+        errores y la cantidad de emisores y receptores distintos.
+    </p>
+
+    <form method="get" class="formulario">
+        <div class="rejilla">
+            <div class="fila">
+                <label for="desde">Desde</label>
+                <input type="date" id="desde" name="desde" value="@Model.Desde" />
+            </div>
+
+            <div class="fila">
+                <label for="hasta">Hasta</label>
+                <input type="date" id="hasta" name="hasta" value="@Model.Hasta" />
+            </div>
+        </div>
+
+        <div class="acciones">
+            <button type="submit" class="boton primario">Generar reporte</button>
+        </div>
+    </form>
+</section>
+
+@if (Model.Error is not null)
+{
+    <section class="tarjeta">
+        <div class="estado error">@Model.Error</div>
+    </section>
+}
+else if (Model.Resultado is not null)
+{
+    var reporte = Model.Resultado;
+
+    <section class="tarjeta">
+        <h2>Totales del rango (@reporte.Desde a @reporte.Hasta)</h2>
+        <div class="resumen">
+            <div class="dato"><b>@Formato.Entero(reporte.Totales.CantidadFacturasRecibidas)</b>Facturas recibidas</div>
+            <div class="dato"><b>@Formato.Entero(reporte.Totales.FacturasSinErrores)</b>Facturas sin errores</div>
+            <div class="dato"><b>@Formato.Entero(reporte.Totales.EmisoresDistintos)</b>Emisores distintos</div>
+            <div class="dato"><b>@Formato.Entero(reporte.Totales.ReceptoresDistintos)</b>Receptores distintos</div>
+        </div>
+    </section>
+
+    @if (reporte.Fechas.Count == 0)
+    {
+        <section class="tarjeta">
+            <p class="vacio">No existen facturas registradas en el rango seleccionado.</p>
+        </section>
+    }
+    else
+    {
+        foreach (var dia in reporte.Fechas)
+        {
+            <section class="tarjeta">
+                <h3 class="fecha-reporte">FECHA: @dia.Fecha</h3>
+
+                <table class="tabla datos">
+                    <tbody>
+                        <tr>
+                            <th>Cantidad total de facturas recibidas</th>
+                            <td class="numerico">@Formato.Entero(dia.CantidadFacturasRecibidas)</td>
+                        </tr>
+                        @foreach (var (etiqueta, cantidad) in dia.Errores.Categorias())
+                        {
+                            <tr>
+                                <th>@etiqueta</th>
+                                <td class="numerico">@Formato.Entero(cantidad) errores</td>
+                            </tr>
+                        }
+                        @if (dia.Errores.Otros().Any(o => o.Cantidad > 0))
+                        {
+                            var otros = dia.Errores.Otros().Sum(o => o.Cantidad);
+                            <tr>
+                                <th>Otros errores (fecha, referencia o valor inválidos)</th>
+                                <td class="numerico">@Formato.Entero(otros) errores</td>
+                            </tr>
+                        }
+                        <tr>
+                            <th>Cantidad de facturas sin errores</th>
+                            <td class="numerico">@Formato.Entero(dia.FacturasSinErrores)</td>
+                        </tr>
+                        <tr>
+                            <th>Cantidad de emisores de facturas</th>
+                            <td class="numerico">@Formato.Entero(dia.EmisoresDistintos)</td>
+                        </tr>
+                        <tr>
+                            <th>Cantidad de receptores de facturas</th>
+                            <td class="numerico">@Formato.Entero(dia.ReceptoresDistintos)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+        }
+    }
+}

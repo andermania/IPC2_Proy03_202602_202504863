@@ -6,69 +6,18 @@
 
 <section class="tarjeta">
     <h1>Ayuda</h1>
+    <p>Seleccione una de las dos opciones disponibles:</p>
 
-    <h2>Información del estudiante</h2>
-    <table class="tabla">
-        <tbody>
-            <tr><th>Carné</th><td>2020504863</td></tr>
-            <tr><th>Nombre</th><td>_______________________________________</td></tr>
-            <tr><th>Curso</th><td>IPC2 &middot; Introducción a la Programación y Computación 2</td></tr>
-            <tr><th>Proyecto</th><td>Proyecto 3 &middot; API de autorización de DTE</td></tr>
-        </tbody>
-    </table>
+    <div class="opciones">
+        <a class="opcion" asp-page="/Ayuda/Estudiante">
+            <h2>1. Información del estudiante</h2>
+            <p>Datos del autor del proyecto: nombre, carné, curso y repositorio en GitHub.</p>
+        </a>
 
-    <h2>Documentación del programa</h2>
-
-    <p>
-        La solución está compuesta por dos programas:
-    </p>
-    <ul>
-        <li><strong>Programa 1 (Frontend):</strong> aplicación web Razor Pages que permite enviar los mensajes JSON al servicio, consultar los resultados y reiniciar el sistema.</li>
-        <li><strong>Servicio 2 (Backend):</strong> API HTTP en .NET que valida las solicitudes, autoriza los DTE y almacena la información de forma persistente en archivos JSON.</li>
-    </ul>
-
-    <h3>Mensajes de solicitud</h3>
-    <p><strong>Actualización del RTU</strong> (<code>POST /api/rtu</code>):</p>
-    <pre class="codigo">[
-{"NIT": "7378108","nombre": "Empresa ABC, S.A."},
-{"NIT": "8338819","nombre": "Comercial XYZ, S.A."}
-]</pre>
-
-    <p><strong>Autorizaciones de facturas</strong> (<code>POST /api/autorizaciones</code>):</p>
-    <pre class="codigo">[
-{"TIEMPO": "Guatemala, 15/01/2025 15:25 hrs.",
- "REFERENCIA": "A1990",
- "NIT_EMISOR": "7378108",
- "NIT_RECEPTOR": "8338819",
- "VALOR": 100.00,
- "IVA": 12.00,
- "TOTAL": 112.00}
-]</pre>
-
-    <h3>Mensajes de respuesta</h3>
-    <pre class="codigo">{"CONTRIBUYENTES_NUEVOS": 2,
-"CONTRIBUYENTES_ACTUALIZADOS": 0,
-"NITS_INVALIDOS": 0}</pre>
-
-    <pre class="codigo">{"resultadoAutorizaciones": {
- "cantidadAutorizacionesAprobadas": 150,
- "cantidadAutorizacionesRechazadasPorNitEmisorInexistente": 12,
- "cantidadAutorizacionesRechazadasPorNitReceptorInexistente": 8,
- "detalleAprobaciones": [
- {"referencia": "A1990","codigoAprobacion": 2026092100000001}
- ]
- }}</pre>
-
-    <h3>Otras operaciones del servicio</h3>
-    <ul>
-        <li><code>GET /api/rtu</code>: consulta los contribuyentes registrados.</li>
-        <li><code>POST /api/sistema/inicializar</code>: devuelve el sistema al estado inicial (sin datos).</li>
-        <li><code>GET /api/sistema/salud</code>: verifica que el servicio esté operativo.</li>
-    </ul>
-
-    <h3>Número de autorización</h3>
-    <p>
-        El código de autorización tiene la estructura <code>yyyymmdd########</code>, donde el
-        correlativo inicia en 1 cada día (<code>00000001</code>) y no se repite en esa fecha.
-    </p>
+        <a class="opcion" asp-page="/Ayuda/Documentacion">
+            <h2>2. Documentación del programa</h2>
+            <p>Estructura de los mensajes de solicitud y respuesta, endpoints del servicio,
+               reglas de negocio y guía de uso del simulador.</p>
+        </a>
+    </div>
 </section>

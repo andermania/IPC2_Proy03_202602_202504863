@@ -49,7 +49,13 @@ public class ServicioRTU
             }
             else
             {
-                existente.Nombre = contribuyente.Nombre ?? string.Empty;
+                // Solo se actualiza la razón social si el mensaje la incluye, de modo
+                // que un mensaje sin "nombre" no borre el nombre ya registrado.
+                if (!string.IsNullOrWhiteSpace(contribuyente.Nombre))
+                {
+                    existente.Nombre = contribuyente.Nombre.Trim();
+                }
+
                 resultado.ContribuyentesActualizados++;
             }
         }

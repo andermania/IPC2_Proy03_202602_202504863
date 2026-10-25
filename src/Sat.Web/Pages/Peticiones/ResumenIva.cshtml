@@ -1,0 +1,88 @@
+@page
+@model Sat.Web.Pages.ResumenIvaModel
+@{
+    ViewData["Title"] = "Resumen de IVA por fecha y NIT";
+}
+
+<section class="tarjeta">
+    <h1>Resumen de IVA por fecha y NIT</h1>
+    <p>
+        Seleccione la fecha y el servicio mostrará, por cada NIT involucrado, el IVA
+        emitido (facturas donde el NIT es emisor) y el IVA recibido (facturas donde el
+        NIT es receptor).
+    </p>
+
+    <form method="get" class="formulario">
+        <div class="rejilla">
+            <div class="fila">
+                <label for="fecha">Fecha</label>
+                <input type="date" id="fecha" name="fecha" value="@Model.Fecha" />
+            </div>
+        </div>
+
+        <div class="acciones">
+            <button type="submit" class="boton primario">Consultar</button>
+        </div>
+    </form>
+</section>
+
+@if (Model.Error is not null)
+{
+    <section class="tarjeta">
+        <div class="estado error">@Model.Error</div>
+    </section>
+}
+else if (Model.Resultado is not null)
+{
+    var resultado = Model.Resultado;
+    <section class="tarjeta">
+        <h2>Resumen al @resultado.Fecha</h2>
+
+        @if (resultado.Movimientos.Count == 0)
+        {
+            <p class="vacio">No existen facturas registradas en la fecha seleccionada.</p>
+        }
+        else
+        {
+            <div class="resumen">
+                <div class="dato"><b>@Formato.Moneda(resultado.Totales.IvaEmitido)</b>IVA emitido (total)</div>
+                <div class="dato"><b>@Formato.Moneda(resultado.Totales.IvaRecibido)</b>IVA recibido (total)</div>
+                <div class="dato"><b>@Formato.Entero(resultado.Movimientos.Count)</b>NITs con movimientos</div>
+            </div>
+
+            <table class="tabla datos">
+                <thead>
+                    <tr>
+                        <th>NIT</th>
+                        <th>Nombre</th>
+                        <th class="numerico">Facturas emitidas</th>
+                        <th class="numerico">IVA emitido</th>
+                        <th class="numerico">Facturas recibidas</th>
+                        <th class="numerico">IVA recibido</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var movimiento in resultado.Movimientos)
+                    {
+                        <tr>
+                            <td>@movimiento.Nit</td>
+                            <td>@(string.IsNullOrWhiteSpace(movimiento.Nombre) ? "—" : movimiento.Nombre)</td>
+                            <td class="numerico">@Formato.Entero(movimiento.FacturasEmitidas)</td>
+                            <td class="numerico">@Formato.Moneda(movimiento.IvaEmitido)</td>
+                            <td class="numerico">@Formato.Entero(movimiento.FacturasRecibidas)</td>
+                            <td class="numerico">@Formato.Moneda(movimiento.IvaRecibido)</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr class="total">
+                        <td colspan="3">Totales de la fecha</td>
+                        <td class="numerico">@Formato.Moneda(resultado.Totales.IvaEmitido)</td>
+                        <td class="numerico">&nbsp;</td>
+                        <td class="numerico">@Formato.Moneda(resultado.Totales.IvaRecibido)</td>
+                    </tr>
+                </tfoot>
+            </table>
+        }
+    </section>
+}

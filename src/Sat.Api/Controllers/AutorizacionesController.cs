@@ -26,7 +26,7 @@ public class AutorizacionesController : ControllerBase
     [HttpPost]
     public ActionResult<ResultadoAutorizaciones> Autorizar([FromBody] JsonElement cuerpo)
     {
-        if (!Mensajes.Deserializar<Factura>(cuerpo, out var solicitudes))
+        if (!Mensajes.Deserializar<Factura>(cuerpo, Mensajes.PropiedadesAutorizacion, out var solicitudes))
         {
             return BadRequest(new
             {

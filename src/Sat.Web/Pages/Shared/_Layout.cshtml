@@ -12,7 +12,24 @@
             <div class="marca">Simulador SAT &mdash; DTE</div>
             <ul class="menu">
                 <li><a asp-page="/Index">Enviar mensaje</a></li>
-                <li><a asp-page="/Ayuda">Ayuda</a></li>
+                <li class="desplegable">
+                    <a asp-page="/Peticiones/Consultar" class="principal">Peticiones &#9662;</a>
+                    <ul class="submenu">
+                        <li><a asp-page="/Peticiones/Consultar">Consultar contribuyente</a></li>
+                        <li><a asp-page="/Peticiones/ResumenIva">Resumen de IVA por fecha y NIT</a></li>
+                        <li><a asp-page="/Peticiones/ResumenRango">Resumen por rango de fechas</a></li>
+                        <li><a asp-page="/Peticiones/ReporteErrores">Reporte de facturas y errores</a></li>
+                        <li><a asp-page="/Peticiones/Graficas">Gráficas</a></li>
+                        <li><a asp-page="/Peticiones/ReportePdf">Reporte en PDF</a></li>
+                    </ul>
+                </li>
+                <li class="desplegable">
+                    <a asp-page="/Ayuda" class="principal">Ayuda &#9662;</a>
+                    <ul class="submenu">
+                        <li><a asp-page="/Ayuda/Estudiante">Información del estudiante</a></li>
+                        <li><a asp-page="/Ayuda/Documentacion">Documentación del programa</a></li>
+                    </ul>
+                </li>
             </ul>
         </nav>
     </header>

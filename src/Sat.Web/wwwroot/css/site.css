@@ -211,3 +211,203 @@ code {
     padding: 0.1rem 0.35rem;
     border-radius: 3px;
 }
+
+/* ---------------------------------------------------------------- Menú ---- */
+
+.desplegable {
+    position: relative;
+}
+
+.desplegable > a.principal::after {
+    content: "";
+}
+
+.submenu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 260px;
+    background: var(--primario);
+    list-style: none;
+    margin: 0;
+    padding: 0.4rem 0;
+    border-radius: 0 0 6px 6px;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+    z-index: 20;
+}
+
+.desplegable:hover .submenu,
+.desplegable:focus-within .submenu {
+    display: block;
+}
+
+.submenu li {
+    white-space: nowrap;
+}
+
+.submenu a {
+    display: block;
+    padding: 0.5rem 1rem;
+    border-radius: 0;
+}
+
+.submenu a:hover {
+    background: var(--primario-claro);
+}
+
+/* -------------------------------------------------------------- Formularios */
+
+.formulario .rejilla {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 1rem;
+    align-items: start;
+}
+
+.formulario input[type="date"],
+.formulario input[type="text"],
+.formulario input[list],
+.formulario select {
+    padding: 0.5rem;
+    border: 1px solid var(--borde);
+    border-radius: 4px;
+    background: #fff;
+    font-size: 1rem;
+    width: 100%;
+}
+
+.radio {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    font-weight: 400;
+}
+
+.radio label {
+    font-weight: 400;
+    cursor: pointer;
+}
+
+/* ----------------------------------------------------------------- Tablas -- */
+
+.tabla.datos th {
+    width: auto;
+    background: #eef2f7;
+    font-weight: 700;
+}
+
+.tabla.datos thead th {
+    background: var(--primario);
+    color: #fff;
+    border-color: var(--primario);
+}
+
+.tabla.datos td.numerico,
+.tabla.datos th.numerico {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.tabla.datos tfoot .total td,
+.tabla.datos tfoot .total th {
+    background: #eef2f7;
+    font-weight: 700;
+    border-top: 2px solid var(--primario);
+}
+
+.tabla.datos tbody tr:nth-child(even) td {
+    background: #fafbfd;
+}
+
+.tabla thead th {
+    background: var(--primario);
+    color: #fff;
+    border-color: var(--primario);
+    width: auto;
+}
+
+.tabla tbody th {
+    background: #f7f9fc;
+    font-weight: 600;
+    width: auto;
+}
+
+/* ------------------------------------------------------------- Contenedores */
+
+.vacio {
+    color: #6b7785;
+    font-style: italic;
+    margin: 0.4rem 0;
+}
+
+.nota {
+    color: #6b7785;
+    font-size: 0.9rem;
+}
+
+.fecha-reporte {
+    margin-top: 0;
+    color: var(--primario);
+    letter-spacing: 0.03em;
+}
+
+.grafica {
+    border: 1px solid var(--borde);
+    border-radius: 6px;
+    padding: 0.6rem;
+    background: #fff;
+    overflow-x: auto;
+}
+
+.opciones {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
+.opcion {
+    display: block;
+    border: 1px solid var(--borde);
+    border-left: 5px solid var(--primario-claro);
+    border-radius: 6px;
+    padding: 1rem 1.2rem;
+    background: #f7f9fc;
+    text-decoration: none;
+    color: var(--texto);
+    transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.opcion:hover {
+    background: #eef3fb;
+    transform: translateY(-2px);
+}
+
+.opcion h2 {
+    margin: 0 0 0.4rem;
+    font-size: 1.1rem;
+    color: var(--primario);
+}
+
+.opcion p {
+    margin: 0;
+    color: #4a5766;
+}
+
+@media (max-width: 720px) {
+    .navbar {
+        flex-direction: column;
+        gap: 0.6rem;
+        padding: 0.8rem 1rem;
+    }
+
+    .menu {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .submenu {
+        position: static;
+        box-shadow: none;
+    }
+}

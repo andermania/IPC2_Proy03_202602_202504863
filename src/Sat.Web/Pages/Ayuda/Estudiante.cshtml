@@ -1,0 +1,30 @@
+@page
+@model Sat.Web.Pages.EstudianteModel
+@{
+    ViewData["Title"] = "Información del estudiante";
+}
+
+<section class="tarjeta">
+    <h1>Información del estudiante</h1>
+
+    <table class="tabla">
+        <tbody>
+            <tr><th>Nombre</th><td>@EstudianteModel.Nombre</td></tr>
+            <tr><th>Carné</th><td>@EstudianteModel.Carnet</td></tr>
+            <tr><th>Curso</th><td>@EstudianteModel.Curso</td></tr>
+            <tr><th>Proyecto</th><td>@EstudianteModel.Proyecto</td></tr>
+            <tr>
+                <th>Repositorio</th>
+                <td><a href="@EstudianteModel.Repositorio" target="_blank" rel="noopener">@EstudianteModel.Repositorio</a></td>
+            </tr>
+            <tr><th>Asignatura</th><td>IPC2 &middot; Escuela de Ciencias y Sistemas, USAC</td></tr>
+        </tbody>
+    </table>
+
+    <p class="nota">
+        El repositorio se denomina <code>IPC2_Proy03_202602_202504863</code>, siguiendo el
+        formato <code>IPC2_Proy03_202602_#Carnet</code> indicado en el enunciado.
+    </p>
+
+    <p><a class="boton primario" asp-page="/Ayuda">Volver a Ayuda</a></p>
+</section>

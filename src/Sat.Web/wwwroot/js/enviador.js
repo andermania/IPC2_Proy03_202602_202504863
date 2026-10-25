@@ -19,15 +19,56 @@
         autorizaciones: "/api/autorizaciones",
     };
 
+    // Los códigos de aprobación (yyyymmdd########) superan la precisión de
+    // Number en JavaScript: si se parsea el JSON y se vuelve a serializar, se
+    // pierden los últimos dígitos. Por eso el texto crudo se formatea aquí,
+    // sin convertir los números a valores numéricos.
+    function formatear(json) {
+        let salida = "";
+        let nivel = 0;
+        let enCadena = false;
+        let escapado = false;
+
+        const sangria = () => "  ".repeat(Math.max(0, nivel));
+
+        for (let i = 0; i < json.length; i++) {
+            const c = json[i];
+
+            if (enCadena) {
+                salida += c;
+                if (escapado) escapado = false;
+                else if (c === "\\") escapado = true;
+                else if (c === '"') enCadena = false;
+                continue;
+            }
+
+            if (c === '"') {
+                enCadena = true;
+                salida += c;
+            } else if (c === "{" || c === "[") {
+                nivel++;
+                salida += c + "\n" + sangria();
+            } else if (c === "}" || c === "]") {
+                nivel--;
+                salida += "\n" + sangria() + c;
+            } else if (c === ",") {
+                salida += c + "\n" + sangria();
+            } else if (c === ":") {
+                salida += ": ";
+            } else if (c === " " || c === "\n" || c === "\r" || c === "\t") {
+                // El espacio fuera de las cadenas es prescindible.
+            } else {
+                salida += c;
+            }
+        }
+
+        return salida;
+    }
+
     function mostrarEstado(mensaje, tipo) {
         cajaEstado.hidden = false;
         cajaEstado.textContent = mensaje;
         cajaEstado.className = "estado" + (tipo ? " " + tipo : "");
-    }
-
-    function mostrarRespuesta(datos) {
-        cajaRespuesta.textContent = JSON.stringify(datos, null, 2);
-        mostrarResumen(datos);
     }
 
     function tarjeta(etiqueta, valor) {
@@ -68,7 +109,27 @@
 
         if (datos && datos.estado) {
             cajaResumen.appendChild(tarjeta("Estado del sistema", datos.estado));
+        } else {
+            cajaResumen.hidden = true;
         }
+    }
+
+    // Muestra la respuesta del API: el texto crudo (con sus cifras exactas)
+    // y, cuando es JSON válido, el resumen con los indicadores principales.
+    function mostrarRespuesta(texto) {
+        cajaRespuesta.textContent = texto && texto.length
+            ? formatear(texto)
+            : "(sin contenido)";
+
+        let datos = null;
+        try {
+            datos = JSON.parse(texto);
+        } catch (error) {
+            datos = null;
+        }
+
+        mostrarResumen(datos);
+        return datos;
     }
 
     form.addEventListener("submit", async function (evento) {
@@ -100,16 +161,16 @@
                 body: texto,
             });
 
-            const datos = await respuesta.json().catch(() => null);
+            const cuerpo = await respuesta.text();
 
             if (!respuesta.ok) {
                 mostrarEstado("El servicio rechazó el mensaje (HTTP " + respuesta.status + ").", "error");
-                mostrarRespuesta(datos);
+                mostrarRespuesta(cuerpo);
                 return;
             }
 
             mostrarEstado("Mensaje procesado correctamente.", "exito");
-            mostrarRespuesta(datos);
+            mostrarRespuesta(cuerpo);
         } catch (error) {
             mostrarEstado("No fue posible comunicarse con el servicio: " + error.message, "error");
         } finally {
@@ -126,7 +187,7 @@
         btnInicializar.disabled = true;
         try {
             const respuesta = await fetch(apiBaseUrl + "/api/sistema/inicializar", { method: "POST" });
-            const datos = await respuesta.json().catch(() => null);
+            const cuerpo = await respuesta.text();
 
             if (!respuesta.ok) {
                 mostrarEstado("No fue posible inicializar el sistema.", "error");
@@ -134,7 +195,7 @@
             }
 
             mostrarEstado("Sistema inicializado: sin datos.", "exito");
-            mostrarRespuesta(datos);
+            mostrarRespuesta(cuerpo);
         } catch (error) {
             mostrarEstado("No fue posible comunicarse con el servicio: " + error.message, "error");
         } finally {

@@ -1,0 +1,133 @@
+@page
+@model Sat.Web.Pages.ConsultarModel
+@{
+    ViewData["Title"] = "Consultar contribuyente";
+}
+
+<section class="tarjeta">
+    <h1>Consultar contribuyente</h1>
+    <p>
+        Seleccione si desea ver las <strong>facturas emitidas</strong> o las
+        <strong>facturas recibidas</strong>, el NIT del contribuyente y el rango de fechas.
+        El reporte indica por cada fecha la cantidad de facturas autorizadas y el monto
+        facturado, además del total de todo el rango.
+    </p>
+
+    <form method="get" class="formulario">
+        <div class="rejilla">
+            <div class="fila">
+                <label for="tipo">Tipo de facturas</label>
+                <select id="tipo" name="tipo">
+                    @if (Model.Tipo == "recibidas")
+                    {
+                        <option value="emitidas">Facturas emitidas</option>
+                        <option value="recibidas" selected>Facturas recibidas</option>
+                        <option value="ambas">Ambas</option>
+                    }
+                    else if (Model.Tipo == "ambas")
+                    {
+                        <option value="emitidas">Facturas emitidas</option>
+                        <option value="recibidas">Facturas recibidas</option>
+                        <option value="ambas" selected>Ambas</option>
+                    }
+                    else
+                    {
+                        <option value="emitidas" selected>Facturas emitidas</option>
+                        <option value="recibidas">Facturas recibidas</option>
+                        <option value="ambas">Ambas</option>
+                    }
+                </select>
+            </div>
+
+            <div class="fila">
+                <label for="nit">NIT del contribuyente</label>
+                <input list="catalogoNits" id="nit" name="nit" value="@Model.Nit"
+                       placeholder="Ej. 7378106" autocomplete="off" />
+                <datalist id="catalogoNits">
+                    @foreach (var contribuyente in Model.Catalogo)
+                    {
+                        <option value="@contribuyente.Nit">@contribuyente.Nombre</option>
+                    }
+                </datalist>
+            </div>
+
+            <div class="fila">
+                <label for="desde">Desde</label>
+                <input type="date" id="desde" name="desde" value="@Model.Desde" />
+            </div>
+
+            <div class="fila">
+                <label for="hasta">Hasta</label>
+                <input type="date" id="hasta" name="hasta" value="@Model.Hasta" />
+            </div>
+        </div>
+
+        <div class="acciones">
+            <button type="submit" class="boton primario">Consultar</button>
+        </div>
+    </form>
+</section>
+
+@if (Model.Error is not null)
+{
+    <section class="tarjeta">
+        <div class="estado error">@Model.Error</div>
+    </section>
+}
+else if (Model.Resultado is not null)
+{
+    var resultado = Model.Resultado;
+    <section class="tarjeta">
+        <h2>Resultado de la consulta</h2>
+
+        @if (!resultado.Encontrado)
+        {
+            <div class="estado error">
+                El NIT @resultado.Nit no está registrado en el RTU.
+            </div>
+        }
+        else
+        {
+            <div class="resumen">
+                <div class="dato"><b>@resultado.Nit</b>NIT</div>
+                <div class="dato"><b>@(string.IsNullOrWhiteSpace(resultado.Nombre) ? "Sin nombre" : resultado.Nombre)</b>Contribuyente</div>
+                <div class="dato"><b>@Formato.Entero(resultado.TotalRango.FacturasAutorizadas)</b>Facturas autorizadas</div>
+                <div class="dato"><b>@Formato.Moneda(resultado.TotalRango.MontoAutorizado)</b>Monto facturado (total del rango)</div>
+            </div>
+
+            @if (resultado.PorFecha.Count == 0)
+            {
+                <p class="vacio">No existen facturas @(resultado.Tipo) del contribuyente en el rango seleccionado.</p>
+            }
+            else
+            {
+                <table class="tabla datos">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th class="numerico">Facturas autorizadas</th>
+                            <th class="numerico">Monto facturado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var dia in resultado.PorFecha)
+                        {
+                            <tr>
+                                <td>@dia.Fecha</td>
+                                <td class="numerico">@Formato.Entero(dia.FacturasAutorizadas)</td>
+                                <td class="numerico">@Formato.Moneda(dia.MontoAutorizado)</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr class="total">
+                            <td>Total del rango (@resultado.Desde a @resultado.Hasta)</td>
+                            <td class="numerico">@Formato.Entero(resultado.TotalRango.FacturasAutorizadas)</td>
+                            <td class="numerico">@Formato.Moneda(resultado.TotalRango.MontoAutorizado)</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            }
+        }
+    </section>
+}

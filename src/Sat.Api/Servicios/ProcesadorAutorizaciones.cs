@@ -123,13 +123,10 @@ public class ProcesadorAutorizaciones
         registro.Referencia = referencia;
 
         // Índice global de referencias: la primera referencia gana.
-        if (_facturas.ExisteReferencia(referencia))
+        // La verificación y la reserva se hacen en una sola operación atómica.
+        if (!_facturas.ReservarSiNoExiste(referencia))
         {
             errores.Agregar(ErroresFactura.ReferenciaDuplicada);
-        }
-        else
-        {
-            _facturas.ReservarReferencia(referencia);
         }
     }
 
@@ -173,6 +170,12 @@ public class ProcesadorAutorizaciones
         }
     }
 
+    /// <summary>
+    /// Contabiliza, para cada factura rechazada, los contadores de inexistencia de NIT
+    /// (las únicas dos categorías de rechazo que forman parte de la estructura de
+    /// respuesta obligatoria del enunciado). El resto de los errores se registra en
+    /// la factura y se reporta en GET /api/reportes/errores.
+    /// </summary>
     private static void ContabilizarRechazos(
         ListaEnlazada<string> errores,
         ResultadoAutorizacionesDetalle detalle)
@@ -181,35 +184,11 @@ public class ProcesadorAutorizaciones
         {
             switch (error)
             {
-                case ErroresFactura.NitEmisorInvalido:
-                    detalle.CantidadRechazadasPorNitEmisorInvalido++;
-                    break;
-                case ErroresFactura.NitReceptorInvalido:
-                    detalle.CantidadRechazadasPorNitReceptorInvalido++;
-                    break;
                 case ErroresFactura.NitEmisorInexistente:
                     detalle.CantidadRechazadasPorNitEmisorInexistente++;
                     break;
                 case ErroresFactura.NitReceptorInexistente:
                     detalle.CantidadRechazadasPorNitReceptorInexistente++;
-                    break;
-                case ErroresFactura.IvaIncorrecto:
-                    detalle.CantidadRechazadasPorIvaIncorrecto++;
-                    break;
-                case ErroresFactura.TotalIncorrecto:
-                    detalle.CantidadRechazadasPorTotalIncorrecto++;
-                    break;
-                case ErroresFactura.ReferenciaDuplicada:
-                    detalle.CantidadRechazadasPorReferenciaDuplicada++;
-                    break;
-                case ErroresFactura.ReferenciaInvalida:
-                    detalle.CantidadRechazadasPorReferenciaInvalida++;
-                    break;
-                case ErroresFactura.FechaInvalida:
-                    detalle.CantidadRechazadasPorFechaInvalida++;
-                    break;
-                case ErroresFactura.ValorInvalido:
-                    detalle.CantidadRechazadasPorValorInvalido++;
                     break;
             }
         }

@@ -1,0 +1,89 @@
+@page
+@model Sat.Web.Pages.ReportePdfModel
+@{
+    ViewData["Title"] = "Reporte en PDF";
+}
+
+<section class="tarjeta">
+    <h1>Reporte en PDF</h1>
+    <p>
+        Genere un documento PDF con <strong>todas las peticiones</strong>: reporte de
+        facturas y errores, consulta de contribuyente, resumen de IVA por fecha y NIT y
+        resumen por rango de fechas.
+    </p>
+
+    <form method="post" asp-page-handler="Descargar" class="formulario">
+        <div class="rejilla">
+            <div class="fila">
+                <label for="nit">NIT del contribuyente</label>
+                <input list="catalogoNitsPdf" id="nit" name="nit" value="@Model.Nit"
+                       placeholder="Ej. 7378106" autocomplete="off" />
+                <datalist id="catalogoNitsPdf">
+                    @foreach (var contribuyente in Model.Catalogo)
+                    {
+                        <option value="@contribuyente.Nit">@contribuyente.Nombre</option>
+                    }
+                </datalist>
+            </div>
+
+            <div class="fila">
+                <label for="tipo">Tipo de facturas</label>
+                <select id="tipo" name="tipo">
+                    @if (Model.Tipo == "recibidas")
+                    {
+                        <option value="emitidas">Facturas emitidas</option>
+                        <option value="recibidas" selected>Facturas recibidas</option>
+                        <option value="ambas">Ambas</option>
+                    }
+                    else if (Model.Tipo == "ambas")
+                    {
+                        <option value="emitidas">Facturas emitidas</option>
+                        <option value="recibidas">Facturas recibidas</option>
+                        <option value="ambas" selected>Ambas</option>
+                    }
+                    else
+                    {
+                        <option value="emitidas" selected>Facturas emitidas</option>
+                        <option value="recibidas">Facturas recibidas</option>
+                        <option value="ambas">Ambas</option>
+                    }
+                </select>
+            </div>
+
+            <div class="fila">
+                <label for="desde">Desde</label>
+                <input type="date" id="desde" name="desde" value="@Model.Desde" />
+            </div>
+
+            <div class="fila">
+                <label for="hasta">Hasta</label>
+                <input type="date" id="hasta" name="hasta" value="@Model.Hasta" />
+            </div>
+
+            <div class="fila">
+                <label>Tipo de valores del rango</label>
+                <div class="radio">
+                    @if (Model.ConIva)
+                    {
+                        <label><input type="radio" name="tipoValores" value="total" checked /> Totales (con IVA)</label>
+                        <label><input type="radio" name="tipoValores" value="sinIva" /> Sin IVA</label>
+                    }
+                    else
+                    {
+                        <label><input type="radio" name="tipoValores" value="total" /> Totales (con IVA)</label>
+                        <label><input type="radio" name="tipoValores" value="sinIva" checked /> Sin IVA</label>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="acciones">
+            <button type="submit" class="boton primario">Descargar reporte PDF</button>
+        </div>
+    </form>
+
+    <p class="nota">
+        El resumen de IVA del documento corresponde a la fecha «desde» del rango
+        seleccionado. El archivo se descarga como <code>reporte_sat_desde_hasta.pdf</code>.
+    </p>
+</section>
