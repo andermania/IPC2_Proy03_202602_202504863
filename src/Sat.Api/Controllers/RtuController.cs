@@ -22,9 +22,19 @@ public class RtuController : ControllerBase
 
     /// <summary>Actualiza el RTU con el arreglo de contribuyentes recibido.</summary>
     [HttpPost]
-    public ActionResult<ResultadoRTU> Actualizar([FromBody] JsonElement cuerpo)
+    public async Task<ActionResult<ResultadoRTU>> Actualizar()
     {
-        if (!Mensajes.Deserializar<Contribuyente>(cuerpo, Mensajes.PropiedadesRTU, out var contribuyentes))
+        var cuerpo = await Mensajes.LeerCuerpoAsync(Request);
+
+        if (cuerpo is null)
+        {
+            return BadRequest(new
+            {
+                error = "El mensaje no contiene JSON válido: el archivo está vacío, incompleto o con la sintaxis rota.",
+            });
+        }
+
+        if (!Mensajes.Deserializar<Contribuyente>(cuerpo.Value, Mensajes.PropiedadesRTU, out var contribuyentes))
         {
             return BadRequest(new
             {

@@ -24,9 +24,19 @@ public class AutorizacionesController : ControllerBase
 
     /// <summary>Procesa un arreglo de solicitudes de autorización.</summary>
     [HttpPost]
-    public ActionResult<ResultadoAutorizaciones> Autorizar([FromBody] JsonElement cuerpo)
+    public async Task<ActionResult<ResultadoAutorizaciones>> Autorizar()
     {
-        if (!Mensajes.Deserializar<Factura>(cuerpo, Mensajes.PropiedadesAutorizacion, out var solicitudes))
+        var cuerpo = await Mensajes.LeerCuerpoAsync(Request);
+
+        if (cuerpo is null)
+        {
+            return BadRequest(new
+            {
+                error = "El mensaje no contiene JSON válido: el archivo está vacío, incompleto o con la sintaxis rota.",
+            });
+        }
+
+        if (!Mensajes.Deserializar<Factura>(cuerpo.Value, Mensajes.PropiedadesAutorizacion, out var solicitudes))
         {
             return BadRequest(new
             {
